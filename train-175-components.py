@@ -11,7 +11,7 @@ RANDOM_SEED = 42
 tf.set_random_seed(RANDOM_SEED)
 
 def forwardprop(X, w_1,b_1, w_2,b_2):
-    h    = tf.nn.sigmoid(tf.matmul(X, w_1)+b_1)  # The \sigma function
+    h    = tf.nn.relu(tf.matmul(X, w_1)+b_1)  # The \sigma function
     #yhat = tf.nn.sigmoid(tf.matmul(h, w_2)+b_2)  # The \varphi function
     yhat = tf.matmul(h, w_2)+b_2
     return yhat
@@ -58,8 +58,10 @@ w_1,b_1,w_2,b_2 = untrained_weights()
 
 h = forwardprop(X,w_1,b_1,w_2,b_2)
 pred = tf.nn.sigmoid(forwardprop(X,w_1,b_1,w_2,b_2))
-
-cost    = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=y, logits=h))
+regularizer_1 = tf.nn.l2_loss(w_1)
+regularizer_2 = tf.nn.l2_loss(w_2)
+beta = 0.01
+cost    = tf.reduce_mean(beta * regularizer_1 + beta*regularizer_2 + tf.nn.sigmoid_cross_entropy_with_logits(labels=y, logits=h))
 updates = tf.train.MomentumOptimizer(learning_rate=0.1,momentum=0.1).minimize(cost)
 sess.run(tf.global_variables_initializer())
 print(sess.run(cost,feed_dict={X: X_train, y: y_train}))
